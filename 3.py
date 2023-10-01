@@ -2,6 +2,16 @@ import numpy as np
 import random
 
 
+# Функция для кодирования слова из 4 букв
+def word_to_bit(word):
+    if len(word) != 4:
+        raise ValueError("Слово должно состоять из 4 букв")
+    encoded_word = ''
+    for char in word:
+        encoded_word += binary_dict[char]
+    return encoded_word
+
+
 def encode_word(encoded_input_list, G):
     encoded_list = []
     for i in range(len(encoded_input_list)):
@@ -70,17 +80,6 @@ binary_dict_rev = {}
 for i, char in enumerate(alphabet):
     binary_dict[char] = format(i, '05b')
     binary_dict_rev[format(i, '05b')] = char
-
-
-# Функция для кодирования слова из 4 букв
-def word_to_bit(word):
-    if len(word) != 4:
-        raise ValueError("Слово должно состоять из 4 букв")
-    encoded_word = ''
-    for char in word:
-        encoded_word += binary_dict[char]
-    return encoded_word
-
 
 # Создание матриц G и H для кода Хэмминга (7, 4)
 G = np.array([[1, 1, 0, 1],
