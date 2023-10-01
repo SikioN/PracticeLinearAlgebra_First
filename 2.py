@@ -1,94 +1,76 @@
-import random
-import sympy
-
-# Алфавит и ключевая матрица размером 2x2
-alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя .!?'
+import numpy as np
 
 
-# Функция для генерации случайной ключевой матрицы
-def generate_random_key_matrix(n):
+# Функция для генерации случайной матрицы-ключа
+def generate_key_matrix(size, n):
     while True:
-        # Генерируем случайную матрицу 2x2 с элементами в диапазоне [1, n-1]
-        key_matrix = sympy.Matrix([[random.randint(1, n - 1), random.randint(1, n - 1)],
-                                   [random.randint(1, n - 1), random.randint(1, n - 1)]])
-        # Проверяем, что определитель не имеет общих делителей с n
-        determinant = key_matrix.det()
-        if sympy.gcd(determinant, n) == 1:
-            return key_matrix
-
-
-# Генерируем случайное n, так чтобы gcd(alphabet_length, n) = 1
-alphabet_length = len(alphabet)
-n = random.randint(alphabet_length + 1, alphabet_length * 10)
-
-# Генерируем случайную ключевую матрицу
-original_key_matrix = generate_random_key_matrix(n)
+        key_matrix = np.random.randint(n, size=(size, size))
+        det = int(np.round(np.linalg.det(key_matrix))) % n
+        return key_matrix
 
 
 # Функция для шифрования сообщения
-def encrypt(message, key_matrix):
+def encrypt(message, key_matrix, n):
+    size = key_matrix.shape[0]
     encrypted_message = ""
-    for i in range(0, len(message), 2):
-        pair = message[i:i + 2]
-        if len(pair) == 2:
-            pair_matrix = sympy.Matrix([[alphabet.index(pair[0]), alphabet.index(pair[1])]])
-            result_matrix = (pair_matrix * key_matrix) % len(alphabet)
-            encrypted_pair = "".join([alphabet[result_matrix[0, 0]], alphabet[result_matrix[0, 1]]])
-            encrypted_message += encrypted_pair
+    for i in range(0, len(message), size):
+        block = message[i:i + size]
+        block_indices = [alphabet.index(char) for char in block]
+        encrypted_block_indices = np.dot(key_matrix, block_indices) % len(alphabet)
+        encrypted_block = ''.join([alphabet[index] for index in encrypted_block_indices])
+        encrypted_message += encrypted_block
     return encrypted_message
 
 
-# Функция для дешифрования сообщения и поиска ключевой матрицы
-def decrypt_and_find_key(encrypted_message, original_key_matrix):
-    decrypted_message = ""
-    key_matrix = sympy.MatrixSymbol('key_matrix', 2, 2)
-    equations = []
-    for i in range(0, len(encrypted_message), 2):
-        pair = encrypted_message[i:i + 2]
-        if len(pair) == 2:
-            pair_matrix = sympy.Matrix([[alphabet.index(pair[0]), alphabet.index(pair[1])]])
-            result_matrix = (pair_matrix * key_matrix) % len(alphabet)
-            decrypted_pair = "".join([alphabet[result_matrix[0, 0]], alphabet[result_matrix[0, 1]]])
-            decrypted_message += decrypted_pair
-            # Добавляем уравнения для решения системы
-            equations.append(result_matrix - pair_matrix)
+# Создаем алфавит
+alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя .!?'
 
-    # Решаем систему уравнений для нахождения ключевой матрицы
-    solution = sympy.solve(equations, key_matrix)
-    found_key_matrix = solution[key_matrix]
+# Исходное сообщение
+message = "абвгдеёжзийк"
 
-    return decrypted_message, found_key_matrix
+# Генерируем ключи разных размеров
+n = len(alphabet)
+key_matrix_2x2 = generate_key_matrix(2, n)
+
+# Шифруем сообщение с каждым ключом
+encrypted_message_2x2 = encrypt(message, key_matrix_2x2, n)
+
+print(encrypted_message_2x2)
 
 
-# Генерация случайного сообщения из 12 символов
-random.seed(123)  # Для воспроизводимости результатов
-random_message = ''.join(random.choice(alphabet) for _ in range(12))
-
-# Шифрование сообщения с использованием ключевой матрицы
-encrypted_message = encrypt(random_message, original_key_matrix)
+def split_message(message, block_size):
+    return [message[i:i + block_size] for i in range(0, len(message), block_size)]
 
 
-def decrypt_and_find_key(encrypted_message, original_key_matrix):
-    decrypted_message = ""
-    inverse_original_key_matrix = original_key_matrix.inv_mod(len(alphabet))
-    for i in range(0, len(encrypted_message), 2):
-        pair = encrypted_message[i:i + 2]
-        if len(pair) == 2:
-            pair_matrix = sympy.Matrix([[alphabet.index(pair[0]), alphabet.index(pair[1])]])
-            result_matrix = (pair_matrix * inverse_original_key_matrix) % len(alphabet)
-            decrypted_pair = "".join([alphabet[result_matrix[0, 0]], alphabet[result_matrix[0, 1]]])
-            decrypted_message += decrypted_pair
-    return decrypted_message, inverse_original_key_matrix
+# Исходное сообщение и зашифрованное сообщение
+message = "абвгдеёжзийк"
+encrypted_message_2x2 = "ёязцйнлен пч"
 
+# Алфавит
+alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя .!?'
+n = len(alphabet)
 
+# Разбиваем исходное и зашифрованное сообщения на блоки
+message_blocks = split_message(message, 2)
+encrypted_blocks = split_message(encrypted_message_2x2, 2)
 
-print(f"Исходное сообщение: {random_message}")
-print(f"Зашифрованное сообщение: {encrypted_message}")
+# Создание ключевых матриц для каждого блока
+key_matrices = []
+for i in range(len(message_blocks)):
+    M_indices = [alphabet.index(char) for char in message_blocks[i]]
+    C_indices = [alphabet.index(char) for char in encrypted_blocks[i]]
 
+    # Создание матрицы M и C из индексов символов
+    M = np.array(M_indices).reshape(2, 1)
+    C = np.array(C_indices).reshape(2, 1)
 
+    # Найдите обратную матрицу M^-1
+    M_inv = np.linalg.inv(M)
 
+    # Найдите ключевую матрицу K = M^-1 * C
+    K = np.dot(M_inv, C) % n
+    key_matrices.append(K)
 
-# Дешифрование и поиск ключевой матрицы
-decrypted_message, found_key_matrix = decrypt_and_find_key(encrypted_message, original_key_matrix)
-print(f"Дешифрованное сообщение: {decrypted_message}")
-print(f"Найденная ключевая матрица: {found_key_matrix}")
+print("Ключевые матрицы K для каждого блока:")
+for i, K in enumerate(key_matrices):
+    print(f"Блок {i + 1}:\n{K}")

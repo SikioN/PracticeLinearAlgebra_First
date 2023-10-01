@@ -54,8 +54,12 @@ if __name__ == '__main__':
 
     # Исходное сообщение
     message = ""
+    # Количество символово в сообщение
+    k = 12
     while True:
-        message = input("Введите сообщение из >= 12 символов: ").ljust(12)
+        message = input("Введите сообщение из >= 12 символов: ")
+        k -= (12 - len(message))
+        message = message.ljust(12)
         if len(message) == 12:
             break
         else:
@@ -89,17 +93,17 @@ if __name__ == '__main__':
 
     # Выводим результаты
     print("Исходное сообщение:", message)
-    print("\nЗашифрованное сообщение 2x2:", encrypted_message_2x2)
-    print("Расшифрованное сообщение 2x2:", decrypted_message_2x2)
-    print("Зашифрованное испорченное сообщение 2x2:", corrupted_encrypted_message_2x2)
-    print("Расшифрованное испорченное сообщение 2x2:", corrupted_decrypted_message_2x2)
+    print("\nЗашифрованное сообщение 2x2:", encrypted_message_2x2[:k])
+    print("Расшифрованное сообщение 2x2:", decrypted_message_2x2[:k])
+    print("Зашифрованное испорченное сообщение 2x2:", corrupted_encrypted_message_2x2[:k])
+    print("Расшифрованное испорченное сообщение 2x2:", corrupted_decrypted_message_2x2[:k])
 
-    print("\nЗашифрованное сообщение 3x3:", encrypted_message_3x3)
-    print("Расшифрованное сообщение 3x3:", decrypted_message_3x3)
-    print("Зашифрованное испорченное сообщение 3x3:", corrupted_encrypted_message_3x3)
-    print("Расшифрованное испорченное сообщение 3x3:", corrupted_decrypted_message_3x3)
+    print("\nЗашифрованное сообщение 3x3:", encrypted_message_3x3[:k])
+    print("Расшифрованное сообщение 3x3:", decrypted_message_3x3[:k])
+    print("Зашифрованное испорченное сообщение 3x3:", corrupted_encrypted_message_3x3[:k])
+    print("Расшифрованное испорченное сообщение 3x3:", corrupted_decrypted_message_3x3[:k])
 
-    print("\nЗашифрованное сообщение 4x4:", encrypted_message_4x4)
-    print("Расшифрованное сообщение 4x4:", decrypted_message_4x4)
-    print("Зашифрованное испорченное сообщение 4x4:", corrupted_encrypted_message_4x4)
-    print("Расшифрованное испорченное сообщение 4x4:", corrupted_decrypted_message_4x4)
+    print("\nЗашифрованное сообщение 4x4:", encrypted_message_4x4[:k])
+    print("Расшифрованное сообщение 4x4:", decrypted_message_4x4[:k])
+    print("Зашифрованное испорченное сообщение 4x4:", corrupted_encrypted_message_4x4[:k])
+    print("Расшифрованное испорченное сообщение 4x4:", corrupted_decrypted_message_4x4[:k])
