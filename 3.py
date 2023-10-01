@@ -24,9 +24,11 @@ def encode_word(encoded_input_list, G):
 def simulate_error(encoded_word, n):
     # Случайно выбираем два индекса для инвертирования битов
     corrupted_text = []
+    count = n
     for c in encoded_word:
         text = "".join(str(_) for _ in (c.T).tolist()[0])
-        error_indices = random.sample(range(len(text)), n)
+        error_indices = random.sample(range(len(text)), 1 if count > 0 else 0)
+        count -= 1 if count > 0 else 0
         corrupted_word = list(text)
         for index in error_indices:
             corrupted_word[index] = '1' if corrupted_word[index] == '0' else '0'
@@ -105,7 +107,7 @@ if __name__ == '__main__':
     encode = encode_word(bit_input_list, G)
 
     # Количество испорченных битов
-    n = 0
+    n = 1
     corrupted_word = simulate_error(encode, n)
 
     decoded_word = decode_word(corrupted_word, H)
