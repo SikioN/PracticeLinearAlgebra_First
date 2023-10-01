@@ -107,3 +107,10 @@ if __name__ == '__main__':
     print("Расшифрованное сообщение 4x4:", decrypted_message_4x4[:k])
     print("Зашифрованное испорченное сообщение 4x4:", corrupted_encrypted_message_4x4[:k])
     print("Расшифрованное испорченное сообщение 4x4:", corrupted_decrypted_message_4x4[:k])
+
+
+    message = "аб"
+    encrypted_message_2x2 = encrypt(message, key_matrix_2x2, n)
+    decrypted_message_2x2 = decrypt(encrypted_message_2x2, key_matrix_2x2, n)
+    print(encrypted_message_2x2, decrypted_message_2x2)
+абвгдеёжзийклмнопрстуфхцчшщъыьэюя

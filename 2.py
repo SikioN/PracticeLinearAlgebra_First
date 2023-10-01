@@ -1,4 +1,6 @@
 import numpy as np
+import sympy
+from sympy import Matrix
 
 
 # Функция для генерации случайной матрицы-ключа
@@ -22,55 +24,82 @@ def encrypt(message, key_matrix, n):
     return encrypted_message
 
 
-# Создаем алфавит
-alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя .!?'
-
-# Исходное сообщение
-message = "абвгдеёжзийк"
-
-# Генерируем ключи разных размеров
-n = len(alphabet)
-key_matrix_2x2 = generate_key_matrix(2, n)
-
-# Шифруем сообщение с каждым ключом
-encrypted_message_2x2 = encrypt(message, key_matrix_2x2, n)
-
-print(encrypted_message_2x2)
+# Функция для дешифрования сообщения
+def decrypt(encrypted_message, key_matrix, n):
+    size = key_matrix.shape[0]
+    key_matrix_inverse = Matrix(key_matrix).inv_mod(n)
+    decrypted_message = ""
+    for i in range(0, len(encrypted_message), size):
+        block = encrypted_message[i:i + size]
+        block_indices = [alphabet.index(char) for char in block]
+        decrypted_block_indices = np.dot(key_matrix_inverse, block_indices).astype(int) % len(alphabet)
+        decrypted_block = ''.join([alphabet[index] for index in decrypted_block_indices])
+        decrypted_message += decrypted_block
+    return decrypted_message
 
 
-def split_message(message, block_size):
-    return [message[i:i + block_size] for i in range(0, len(message), block_size)]
+# Функция разбивающая исходное и зашифрованное сообщения на списки индексов пар символов
+def split_message(message, alphabet):
+    index_list = []
+    for char1, char2 in zip(message[::2], message[1::2]):
+        index1 = alphabet.index(char1)
+        index2 = alphabet.index(char2)
+        index_list.append([index1, index2])
+    return index_list
 
 
-# Исходное сообщение и зашифрованное сообщение
-message = "абвгдеёжзийк"
-encrypted_message_2x2 = "ёязцйнлен пч"
+if __name__ == '__main__':
 
-# Алфавит
-alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя .!?'
-n = len(alphabet)
+    # Создаем алфавит
+    alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя .!?'
 
-# Разбиваем исходное и зашифрованное сообщения на блоки
-message_blocks = split_message(message, 2)
-encrypted_blocks = split_message(encrypted_message_2x2, 2)
+    # Исходное сообщение
+    message = "абвгдеёжзийк"
 
-# Создание ключевых матриц для каждого блока
-key_matrices = []
-for i in range(len(message_blocks)):
-    M_indices = [alphabet.index(char) for char in message_blocks[i]]
-    C_indices = [alphabet.index(char) for char in encrypted_blocks[i]]
+    # Сообщение, которое мы хотим расшифровать
+    text = ""
+    # Количество символово в сообщение
+    k = 12
+    while True:
+        text = input("Введите сообщение из >= 12 символов: ")
+        k -= (12 - len(text))
+        text = text.ljust(12)
+        if len(text) == 12:
+            break
+        else:
+            print("Повторите попытку. Кажется, вы неверно ввели сообщение")
 
-    # Создание матрицы M и C из индексов символов
-    M = np.array(M_indices).reshape(2, 1)
-    C = np.array(C_indices).reshape(2, 1)
+    n = len(alphabet)
 
-    # Найдите обратную матрицу M^-1
-    M_inv = np.linalg.inv(M)
+    # Создаём ключ матрицу, чтобы зашифровать сообщения
+    key_matrix = generate_key_matrix(2, n)
 
-    # Найдите ключевую матрицу K = M^-1 * C
-    K = np.dot(M_inv, C) % n
-    key_matrices.append(K)
+    # Шифруем сообщение с неизвестным ключом
+    encrypted_message_2x2 = encrypt(message, key_matrix, n)
 
-print("Ключевые матрицы K для каждого блока:")
-for i, K in enumerate(key_matrices):
-    print(f"Блок {i + 1}:\n{K}")
+    # Перезаписываем значение на зашифрованное
+    text = encrypt(text, key_matrix, n)
+
+    # Обнуляем матрицу
+    key_matrix = Matrix([[0, 0], [0, 0]])
+
+    # Разбиваем исходное и зашифрованное сообщения на списки
+    original_indices = split_message(message, alphabet)
+    encrypted_indices = split_message(encrypted_message_2x2, alphabet)
+
+    # Решение матричного уравнения
+    for i in range(0, len(original_indices), 2):
+        X = sympy.Matrix(
+            [[original_indices[i][0], original_indices[i + 1][0]],
+             [original_indices[i][1], original_indices[i + 1][1]]])
+        _X = sympy.Matrix([[encrypted_indices[i][0], encrypted_indices[i + 1][0]],
+                           [encrypted_indices[i][1], encrypted_indices[i + 1][1]]])
+
+        X = X.inv_mod(len(alphabet))
+
+        A = _X * X % n
+        if decrypt(encrypted_message_2x2, A, n) == message:
+            key_matrix = A
+            break
+
+    print(decrypt(text, key_matrix, n))
