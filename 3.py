@@ -99,7 +99,7 @@ if __name__ == '__main__':
     input_word = "тест"
     bit_input = word_to_bit(input_word)
     bit_input_list = [np.array(list(map(int, bit_input[i:i + 4]))).reshape(4, 1) for i in range(0, len(bit_input), 4)]
-    # print(f"Исходное слово '{input_word}' в двоичной форме: {bit_input}")
+    print(f"Исходное слово '{input_word}' в двоичной форме: {bit_input}")
 
     # Шифрование слова
     encode = encode_word(bit_input_list, G)
@@ -107,7 +107,6 @@ if __name__ == '__main__':
     # Количество испорченных битов
     n = 0
     corrupted_word = simulate_error(encode, n)
-    #     print(f"Исходное слово после вмешательства: {corrupted_word}")
 
     decoded_word = decode_word(corrupted_word, H)
     print(f"Декодированное слово после исправления ошибок: {decoded_word}")
