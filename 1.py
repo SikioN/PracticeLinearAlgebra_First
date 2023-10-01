@@ -4,10 +4,6 @@ import numpy as np
 from sympy import Matrix
 
 
-# Создаем алфавит
-alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя .!?'
-
-
 # Функция для генерации случайной матрицы-ключа
 def generate_key_matrix(size, n):
     while True:
@@ -52,48 +48,58 @@ def simulate_attack(encrypted_message):
     return ''.join(encrypted_list)
 
 
-# Исходное сообщение
-message = "это лаба пла"
+if __name__ == '__main__':
+    # Создаем алфавит
+    alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя .!?'
 
-# Генерируем ключи разных размеров
-n = len(alphabet)
-key_matrix_2x2 = generate_key_matrix(2, n)
-key_matrix_3x3 = generate_key_matrix(3, n)
-key_matrix_4x4 = generate_key_matrix(4, n)
+    # Исходное сообщение
+    message = ""
+    while True:
+        message = input("Введите сообщение из >= 12 символов: ").ljust(12)
+        if len(message) == 12:
+            break
+        else:
+            print("Повторите попытку. Кажется, вы неверно ввели сообщение")
 
-# Шифруем сообщение с каждым ключом
-encrypted_message_2x2 = encrypt(message, key_matrix_2x2, n)
-encrypted_message_3x3 = encrypt(message, key_matrix_3x3, n)
-encrypted_message_4x4 = encrypt(message, key_matrix_4x4, n)
+    # Генерируем ключи разных размеров
+    n = len(alphabet)
+    key_matrix_2x2 = generate_key_matrix(2, n)
+    key_matrix_3x3 = generate_key_matrix(3, n)
+    key_matrix_4x4 = generate_key_matrix(4, n)
 
-# Симулируем вредоносное вмешательство, заменяя три случайных символа
-corrupted_encrypted_message_2x2 = simulate_attack(encrypted_message_2x2)
-corrupted_encrypted_message_3x3 = simulate_attack(encrypted_message_3x3)
-corrupted_encrypted_message_4x4 = simulate_attack(encrypted_message_4x4)
+    # Шифруем сообщение с каждым ключом
+    encrypted_message_2x2 = encrypt(message, key_matrix_2x2, n)
+    encrypted_message_3x3 = encrypt(message, key_matrix_3x3, n)
+    encrypted_message_4x4 = encrypt(message, key_matrix_4x4, n)
 
-# Расшифровываем сообщения без вредоносного вмешательства
-decrypted_message_2x2 = decrypt(encrypted_message_2x2, key_matrix_2x2, n)
-decrypted_message_3x3 = decrypt(encrypted_message_3x3, key_matrix_3x3, n)
-decrypted_message_4x4 = decrypt(encrypted_message_4x4, key_matrix_4x4, n)
+    # Симулируем вредоносное вмешательство, заменяя три случайных символа
+    corrupted_encrypted_message_2x2 = simulate_attack(encrypted_message_2x2)
+    corrupted_encrypted_message_3x3 = simulate_attack(encrypted_message_3x3)
+    corrupted_encrypted_message_4x4 = simulate_attack(encrypted_message_4x4)
 
-# Расшифровываем сообщения с вредоносным вмешательством
-corrupted_decrypted_message_2x2 = decrypt(corrupted_encrypted_message_2x2, key_matrix_2x2, n)
-corrupted_decrypted_message_3x3 = decrypt(corrupted_encrypted_message_3x3, key_matrix_3x3, n)
-corrupted_decrypted_message_4x4 = decrypt(corrupted_encrypted_message_4x4, key_matrix_4x4, n)
+    # Расшифровываем сообщения без вредоносного вмешательства
+    decrypted_message_2x2 = decrypt(encrypted_message_2x2, key_matrix_2x2, n)
+    decrypted_message_3x3 = decrypt(encrypted_message_3x3, key_matrix_3x3, n)
+    decrypted_message_4x4 = decrypt(encrypted_message_4x4, key_matrix_4x4, n)
 
-# Выводим результаты
-print("Исходное сообщение:", message)
-print("\nЗашифрованное сообщение 2x2:", encrypted_message_2x2)
-print("Расшифрованное сообщение 2x2:", decrypted_message_2x2)
-print("Зашифрованное испорченное сообщение 2x2:", corrupted_encrypted_message_2x2)
-print("Расшифрованное испорченное сообщение 2x2:", corrupted_decrypted_message_2x2)
+    # Расшифровываем сообщения с вредоносным вмешательством
+    corrupted_decrypted_message_2x2 = decrypt(corrupted_encrypted_message_2x2, key_matrix_2x2, n)
+    corrupted_decrypted_message_3x3 = decrypt(corrupted_encrypted_message_3x3, key_matrix_3x3, n)
+    corrupted_decrypted_message_4x4 = decrypt(corrupted_encrypted_message_4x4, key_matrix_4x4, n)
 
-print("\nЗашифрованное сообщение 3x3:", encrypted_message_3x3)
-print("Расшифрованное сообщение 3x3:", decrypted_message_3x3)
-print("Зашифрованное испорченное сообщение 3x3:", corrupted_encrypted_message_3x3)
-print("Расшифрованное испорченное сообщение 3x3:", corrupted_decrypted_message_3x3)
+    # Выводим результаты
+    print("Исходное сообщение:", message)
+    print("\nЗашифрованное сообщение 2x2:", encrypted_message_2x2)
+    print("Расшифрованное сообщение 2x2:", decrypted_message_2x2)
+    print("Зашифрованное испорченное сообщение 2x2:", corrupted_encrypted_message_2x2)
+    print("Расшифрованное испорченное сообщение 2x2:", corrupted_decrypted_message_2x2)
 
-print("\nЗашифрованное сообщение 4x4:", encrypted_message_4x4)
-print("Расшифрованное сообщение 4x4:", decrypted_message_4x4)
-print("Зашифрованное испорченное сообщение 4x4:", corrupted_encrypted_message_4x4)
-print("Расшифрованное испорченное сообщение 4x4:", corrupted_decrypted_message_4x4)
+    print("\nЗашифрованное сообщение 3x3:", encrypted_message_3x3)
+    print("Расшифрованное сообщение 3x3:", decrypted_message_3x3)
+    print("Зашифрованное испорченное сообщение 3x3:", corrupted_encrypted_message_3x3)
+    print("Расшифрованное испорченное сообщение 3x3:", corrupted_decrypted_message_3x3)
+
+    print("\nЗашифрованное сообщение 4x4:", encrypted_message_4x4)
+    print("Расшифрованное сообщение 4x4:", decrypted_message_4x4)
+    print("Зашифрованное испорченное сообщение 4x4:", corrupted_encrypted_message_4x4)
+    print("Расшифрованное испорченное сообщение 4x4:", corrupted_decrypted_message_4x4)
